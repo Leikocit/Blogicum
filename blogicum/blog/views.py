@@ -1,6 +1,6 @@
+from django.http import Http404
 from django.shortcuts import render
 
-from django.http import Http404
 
 posts = [
     {
@@ -46,6 +46,13 @@ posts = [
 ]
 
 
+def check_id_or_404(post_id):
+    post = next((p for p in posts if p['id'] == post_id), None)
+    if post is None:
+        raise Http404(f'Пост номер {post_id} не найден')
+    return post
+
+
 def index(request):
     template = 'blog/index.html'
     context = {'post_list': posts[::-1]}
@@ -54,13 +61,7 @@ def index(request):
 
 def post_detail(request, id):
     template = 'blog/detail.html'
-    post = None
-    for p in posts:
-        if p['id'] == id:
-            post = p
-            break
-    if post is None:
-        raise Http404('Страница не найдена')
+    post = check_id_or_404(id)
     context = {'post': post}
     return render(request, template, context)
 
