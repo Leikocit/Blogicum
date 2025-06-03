@@ -45,13 +45,7 @@ posts = [
     },
 ]
 
-
-def check_id_or_404(post_id):
-    post = next((p for p in posts if p['id'] == post_id), None)
-    if post is None:
-        raise Http404(f'Пост номер {post_id} не найден')
-    return post
-
+POST_IDS = {post['id']: post for post in posts}
 
 def index(request):
     template = 'blog/index.html'
@@ -61,7 +55,9 @@ def index(request):
 
 def post_detail(request, id):
     template = 'blog/detail.html'
-    post = check_id_or_404(id)
+    post = POST_IDS.get(id)
+    if post is None:
+        raise Http404(f'Пост номер {id} не найден')
     context = {'post': post}
     return render(request, template, context)
 
